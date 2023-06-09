@@ -31,8 +31,8 @@ def reindent_code(codestr):
     ret = io.StringIO()
 
     run_reindent(
-        codestr, 
-        ret, 
+        codestr,
+        ret,
         config = {
             "dry-run": False,
             "help": False,
@@ -70,11 +70,11 @@ def generate_prompt(args, test_case_path, prompt_path, solutions_path, tokenizer
         _input += "\nUse Standard Input format"#\n"
     else:
         _input += "\nUse Call-Based format"#\n"
-    
+
     _input += "\nANSWER:\n"
 
     if args.peeking > 0.0:
-        # Need to do some peeking. 
+        # Need to do some peeking.
 
         # Read one example solution
         with open(solutions_path, 'r') as f:
@@ -139,7 +139,8 @@ def main(args):
 
     # Set up model
     print("Loading model...")
-    model = transformers.GPT2LMHeadModel.from_pretrained(args.load)
+    #model = transformers.GPT2LMHeadModel.from_pretrained(args.load)
+    model = transformers.GPTNeoForCausalLM.from_pretrained(args.load)
     model.cuda()
     print(f"Loaded {args.load}.")
 
@@ -163,7 +164,7 @@ def main(args):
         if args.debug:
             print("PROMPT_TEXT:")
             print(prompt_text)
-        
+
         # Feed this into the model.
         start = time.time()
         try:
@@ -211,10 +212,10 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Run a tranined model to generate Python code.")
-    parser.add_argument("--arch", default="gpt2", choices=transformers.GPT2_PRETRAINED_MODEL_ARCHIVE_LIST)
-    parser.add_argument("-t","--test_loc", default="~/apps/data_split/test.json", type=str)
+    parser.add_argument("--arch", default="EleutherAI/gpt-neo-2.7B", choices=transformers.GPT2_PRETRAINED_MODEL_ARCHIVE_LIST)
+    parser.add_argument("-t","--test_loc", default="/home/pollock/apps/data_split/train.json", type=str)
     parser.add_argument("-r","--root", default="../", type=str, help="where the data is stored.")
-    parser.add_argument("-l","--load", default="~/apps/models/checkpoints/final", type=str)
+    parser.add_argument("-l","--load", default="/home/pollock/apps/models/2.7B", type=str)
     parser.add_argument("--peeking", default=0.0, type=float)
     parser.add_argument("--num-beams", default=5, type=int)
     parser.add_argument("-s","--start", default=0, type=int)
@@ -222,7 +223,7 @@ if __name__ == "__main__":
     parser.add_argument("-i", "--index", default=None, type=int)
     parser.add_argument("-d", "--debug", action="store_true")
     parser.add_argument("--save", type=str, default="./results")
- 
+
     args = parser.parse_args()
 
     main(args)
